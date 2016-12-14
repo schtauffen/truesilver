@@ -12,7 +12,7 @@ npm install truesilver
 ## component
 `component` is a utility which does two things:  
   
-1. Converts functional-components to valid mithril-components. Functional-components have form:  
+ 1) Converts functional-components to valid mithril-components. Functional-components have form:  
 ```js
 const Example = ({ vnode }) => {
   // oninit things
@@ -21,9 +21,8 @@ const Example = ({ vnode }) => {
 }
 ```
 See [How I use Mithril](https://james-forbes.com/?/posts/how-i-use-mithril) for reference on this pattern. (note mithril#rewrite includes its own implementation of streams).  
-  
-  
-2. Injects a context object into created mithril components. This can be used to share information throughout your app.  
+
+ 2) Injects a context object into created mithril components. This can be used to share information throughout your app.  
 ```js
 // index.js
 import m from 'mithril'
@@ -60,13 +59,10 @@ export default component(({ DOM, vnode }) => {
 
   return () => m('div', { onclick }, ... )
 })
-  
+```
+
 ### component API
 TODO  
-  
-  
-```
-  
 
 ### Examples
 * TODO - simple light box  
