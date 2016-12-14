@@ -31,7 +31,7 @@ import { component } from 'truesilver'
 
 import Root from './components/root'
 
-component.context.DOM = {
+const DOM = {
   clicks: stream(),
   blurs: stream(),
 }
@@ -39,6 +39,7 @@ component.context.DOM = {
 document.addEventListener('click', DOM.clicks)
 document.addEventListener('blur', DOM.blurs, true)
 
+component.context.DOM = DOM
 m.mount(document.getElementById('app'), Root)
 ```
 ```js
