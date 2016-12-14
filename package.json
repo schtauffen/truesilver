@@ -1,0 +1,23 @@
+{
+  "name": "truesilver",
+  "version": "0.1.0",
+  "description": "Utilities for working with mithril.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schtauffen/truesilver.git"
+  },
+  "keywords": [
+    "mithril",
+    "utilities"
+  ],
+  "author": "Zach Dahl <z.schtauffen@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/schtauffen/truesilver/issues"
+  },
+  "homepage": "https://github.com/schtauffen/truesilver#readme"
+}
