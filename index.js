@@ -12,6 +12,9 @@ function Component (context) {
   Object.defineProperty(component, 'context', {
     get: function () {
       return context
+    },
+    set: function (props) {
+      return Object.assign(context, props)
     }
   })
 
