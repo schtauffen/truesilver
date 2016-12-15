@@ -39,7 +39,7 @@ const DOM = {
 document.addEventListener('click', DOM.clicks)
 document.addEventListener('blur', DOM.blurs, true)
 
-component.context.DOM = DOM
+component.context = { DOM }
 m.mount(document.getElementById('app'), Root)
 ```
 ```js
@@ -63,9 +63,61 @@ export default component(({ DOM, vnode }) => {
 ```
 
 ### component API
-TODO  
+#### context
+Has a custom setter which `Object.assign`'s anything you assign to it:
+```js
+component.context = { DOM }
+component.context = { LOG }
+component.context = { ETC }
 
-### Examples
+component.context.hasOwnProperty('DOM') //=>true
+component.context.hasOwnProperty('LOG') //=>true
+component.context.hasOwnProperty('ETC') //=>true
+```
+---
+#### replaceContext
+If you ever need to replace the existing context, `replaceContext` will do so:  
+*Note: you should not use this after components have mounted*
+```js
+component.context = { DOM, LOG, ETC }
+component.replaceContext({ FOO, BAR })
+
+component.context.hasOwnProperty('DOM') //=>false
+component.context.hasOwnProperty('LOG') //=>false
+component.context.hasOwnProperty('ETC') //=>false
+component.context.hasOwnProperty('FOO') //=>true
+component.context.hasOwnProperty('BAR') //=>true
+```
+---
+#### withContext
+This creates a clone of `component` with its own context.  
+This allows different parts of your apps to have different shared state.
+```js
+component.context = { FOO }
+component2 = component.withContext({ BAR })
+
+component.context.hasOwnProperty('FOO') //=>true
+component.context.hasOwnProperty('BAR') //=>false
+
+component2.context.hasOwnProperty('FOO') //=>false
+component2.context.hasOwnProperty('BAR') //=>true
+```
+  
+### instance methods
+Mithril components created with the `component` function consist of the two mithril utilized functions, `oninit` and `view`.  
+In addition, they have `getContext` which returns a shallow clone of the shared `context` and optionally accepts `vnode`-- when present, a reference to vnode will be added to the `context` clone.  
+  
+You can add lifecycle hooks to the resulting components, and use `getContext` to get the same object which is fed by default to function-components:  
+*Note: in general, `this` usage should be frowned upon.*
+```js
+const Example = component( ... )
+Example.onupdate = function (vnode) {
+  const { DOM } = this.getContext() // optionally pass in vnode to get { ...context, vnode }
+  ...
+}
+```
+  
+### examples
 * TODO - simple light box  
 * TODO - hooking up to redux  
 * TODO - random gif  
