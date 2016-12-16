@@ -1,7 +1,9 @@
 # truesilver
 *truesilver* is a utility library for [mithril#rewrite](https://github.com/lhorie/mithril.js/tree/rewrite).  
 It currently consists of the following utilities:  
-* component  
+* [component](#comonent)  
+* [selectState](#selectState)  
+* [bindActions](#bindActions)  
   
 To Install:
 ```bash
@@ -117,7 +119,18 @@ Example.onupdate = function (vnode) {
 }
 ```
   
-### examples
+  
+## selectState
+`selectState` is a function which returns a selector for your component which selects from a redux store.  
+See the Redux example  
+  
+## bindActions
+`bindActions` is a function which returns a selector function which binds `actionCreators` to your components.  
+Resulting `actions` are thunks, so they could be considered `actionCreatorCreators`  
+See the Redux example  
+  
+  
+## examples
 * TODO - simple light box  
 * TODO - hooking up to redux  
 * TODO - random gif  
