@@ -1,9 +1,9 @@
 # truesilver
 *truesilver* is a utility library for [mithril#rewrite](https://github.com/lhorie/mithril.js/tree/rewrite).  
 It currently consists of the following utilities:  
-* [component](#comonent)  
-* [selectState](#selectState)  
-* [bindActions](#bindActions)  
+* [component](#component)  
+* [selectState](#selectstate)  
+* [bindActions](#bindactions)  
   
 To Install:
 ```bash
