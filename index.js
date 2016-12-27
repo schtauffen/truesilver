@@ -1,8 +1,7 @@
 (function () {
   var truesilver = {
-    selectState: selectState,
-    bindActions: bindActions,
-    component: Component()
+    component: component,
+    connect: Connector(),
   }
 
   if (typeof module !== 'undefined' && module.exports) {
@@ -11,34 +10,14 @@
     window.truesilver = truesilver
   }
 
-  function selectState (selector) {
-    return function (context) {
-      return selector(context.getState())
-    }
-  }
+  function Connector (context ) {
+    context = typeof contextr === 'undefined' ? {} : context
 
-  function bindActions (actions) {
-    return function (context) {
-      return Object.keys(actions)
-        .reduce(function (out, key) {
-          out[key] = function (val) {
-            return function () {
-              context.dispatch(actions[key](val))
-            }
-          }
-          return out
-        }, {})
-    }
-  }
-
-  function Component (context) {
-    context = typeof context === 'undefined' ? {} : context
-
-    component.replaceContext = function (pContext) {
+    connect.replaceContext = function (pContext) {
       context = pContext
     }
 
-    Object.defineProperty(component, 'context', {
+    Object.defineProperty(connect, 'context', {
       get: function () {
         return context
       },
@@ -47,40 +26,97 @@
       }
     })
 
-    component.withContext = Component
+    connect.withContext = Connector
 
-    return component
+    return connect
 
-    function component (initializor, selector) {
-
-      if (Array.isArray(selector) || arguments.length > 2) {
-        var i
-        var il = arguments.length
-        var selectors = []
-
-        for (i = 1; i < il; ++i) {
-          selectors = selectors.concat(arguments[i])
+    function connect (mapStateToProps, mapDispatchToProps, mergeProps) {
+      if (typeof mapStateToProps === 'object' && mapStateToProps.hasOwnProperty('view')) {
+        addConnectedProps = function (props) {
+          return Object.assign(props, context)
         }
-
-        selector = function (context) {
-          return selectors.reduce(function (out, sel) {
-            return Object.assign(out, sel(context))
-          }, {})
-        }
+        return connectedComponent(mapStateToProps)
       }
 
-      return {
-        oninit: function (vnode) {
-          this.view = initializor(this.getContext(vnode))
-        },
-        getContext: function (vnode) {
-            var ctx = selector ? selector(context) : context
-            vnode = vnode ? { vnode: vnode } : {}
-            return Object.assign({}, ctx, vnode)
-        },
-        view: function (vnode) {
-          return this.view(this.getContext(vnode))
-        }
+      return connectedComponent
+
+      function connectedComponent (component) {
+        return Object.assign({}, component, {
+          oninit (vnode) {
+            this.streams = []
+            addConnectedProps(vnode.state)
+
+            if (component.oninit) {
+              component.oninit.call(vnode.state, vnode)
+            }
+          },
+          onbeforeupdate (vnode, old) {
+            addConnectedProps(vnode.state)
+
+            if (component.onbeforeupdate)
+              return component.onbeforeupdate.call(vnode.state, vnode, old)
+
+            return true
+          },
+          onbeforeremove (vnode) {
+            addConnectedProps(vnode.state)
+
+            if (component.onbeforeremove)
+              return component.onbeforeremove.call(vnode.state, vnode)
+
+            return null
+          },
+          onremove (vnode) {
+            if (Array.isArray(this.streams))
+              this.streams.forEach(s => s.end(true))
+
+            if (component.onremove)
+              component.onremove.call(vnode.state, vnode)
+          },
+        })
+      }
+
+      // TODO - optimize this (only do typechecking once, etc)
+      function addConnectedProps (props) {
+        // should context, mergProps, etc clobber props? seems backwards
+        return Object.assign(props, context,  updateStateProps(), updateDispatchProps(), mergeProps || {})
+      }
+
+      function updateStateProps () {
+        /* jshint eqnull: true */
+        if (mapStateToProps == null) return {}
+
+        if (typeof mapStateToProps !== 'function')
+          throw new TypeError('connect param1 (mapStateToProps) expects a Function')
+
+        return mapStateToProps(context.getState())
+      }
+
+      function updateDispatchProps () {
+        /* jshint eqnull: true */
+        if (mapDispatchToProps == null) return {}
+
+        if (typeof mapDispatchToProps === 'object')
+          return Object.keys(mapDispatchToProps).reduce(function (out, key) {
+            out[key] = val => () => context.dispatch(mapDispatchToProps[key](val))
+            return out
+          }, {})
+
+        if (typeof mapDispatchToProps !== 'function')
+          throw new TypeError('connect param2 (mapDispatchToProps) expects an Object or a Function')
+
+        return mapDispatchToProps(context.dispatch)
+      }
+    }
+  }
+
+  function component (initializor) {
+    return {
+      oninit: function (vnode) {
+        this.view = initializor(vnode)
+      },
+      view: function (vnode) {
+        return this.view(vnode)
       }
     }
   }

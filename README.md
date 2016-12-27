@@ -2,21 +2,21 @@
 *truesilver* is a utility library for [mithril#rewrite](https://github.com/lhorie/mithril.js/tree/rewrite).  
 It currently consists of the following utilities:  
 * [component](#component)  
-* [selectState](#selectstate)  
-* [bindActions](#bindactions)  
+* [connect](#connect)  
   
 To Install:
 ```bash
 npm install truesilver
 ```
   
+**Note that truesilver is far from stable and should not be used in production.**
+  
   
 ## component
-`component` is a utility which does two things:  
-  
- 1) Converts functional-components to valid mithril-components. Functional-components have form:  
+`component` is a utility which converts functional-components to valid mithril-components. Functional-components have form:  
+
 ```js
-const Example = ({ vnode }) => {
+const Example = (vnode) => {
   // oninit things
 
   return () => m('div', ... ) // render function
@@ -24,7 +24,15 @@ const Example = ({ vnode }) => {
 ```
 See [How I use Mithril](https://james-forbes.com/?/posts/how-i-use-mithril) for reference on this pattern. (note mithril#rewrite includes its own implementation of streams).  
 
- 2) Injects a context object into created mithril components. This can be used to share information throughout your app.  
+
+## connect
+Injects a context object into created mithril components. This can be used to share information throughout your app.  
+It optionally allows you to work with [Redux](https://github.com/reactjs/redux).  
+
+### connect API
+`connect` can be used two ways:  
+  
+1) To add global state or references to your components:
 ```js
 // index.js
 import m from 'mithril'
@@ -41,93 +49,127 @@ const DOM = {
 document.addEventListener('click', DOM.clicks)
 document.addEventListener('blur', DOM.blurs, true)
 
-component.context = { DOM }
+connect.context = { DOM }
 m.mount(document.getElementById('app'), Root)
 ```
 ```js
 // some-component.js
 import m from 'mithril'
 import stream from 'mithril/stream'
-import { component } from 'truesilver'
+import { connect } from 'truesilver'
 
-export default component(({ DOM, vnode }) => {
-  const open = true
-  const close = () => (open = false)
+export default connect({
+  oninit () {
+    this.open = true
+    this.close = () => (this.open = false)
 
-  DOM.clicks.map(close)
-  DOM.blurs.map(e => !vnode.dom.contains(document.activeElement) && close())
+    // since this is a descendant of a stream outside of this component's context it needs
+    // to be cleaned up. 'connect' automatically will clean up streams added to
+    // 'vnode.state.streams' (which mithril binds to 'this' by default)
+    this.streams = [
+      this.DOM.clicks.map(close)
+    ]
 
-  const onclick = stream()
-  onclick.map(e => e.stopPropagation())
+    // doesn't need to be in .streams since it will already
+    // be garbage collected when instance is removed
+    this.click = stream()
+    this.click.map(e => e.stopPropagation())
+  },
 
-  return () => m('div', { onclick }, ... )
+  view () {
+    return m('div', { onclick: this.click }, [
+      // modal-ly stuff here
+    ])
+  }
 })
 ```
+  
+2) With Redux:  
+```js
+// configure-store.js
+import { createStore, combineReducers, applyMiddleware } from 'redux'
+import { connect } from 'truesilver'
 
-### component API
+import * as reducers from './reducers'
+improt middleware from './middleware'
+
+connect.context = createStore(combineReducers(reducers), applyMiddleware(middleware))
+```
+```js
+// counter-component
+import m from 'mithril
+import { connect } from 'truesilver'
+import { increment, decrement } from 'actions'
+
+const mapStateToProps = ({ count }) => ({ count })
+const mapDispatchToProps = { increment, decrement }
+
+const Counter = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)({
+  view () {
+    return [
+      m('button', { onclick: this.decrement() }, '-'),
+      this.count,
+      m('button', { onclick: this.increment() }, '+'),
+    ]
+  }
+})
+
+export default Counter
+```
+  
+  
+connect and component can, of course, be composed:  
+```js
+export default connect(component( ... ))
+```
+  
+  
 #### context
 Has a custom setter which `Object.assign`'s anything you assign to it:
 ```js
-component.context = { DOM }
-component.context = { LOG }
-component.context = { ETC }
+connect.context = { DOM }
+connect.context = { LOG }
+connect.context = { ETC }
 
-component.context.hasOwnProperty('DOM') //=>true
-component.context.hasOwnProperty('LOG') //=>true
-component.context.hasOwnProperty('ETC') //=>true
+connect.context.hasOwnProperty('DOM') //=>true
+connect.context.hasOwnProperty('LOG') //=>true
+connect.context.hasOwnProperty('ETC') //=>true
 ```
 ---
 #### replaceContext
 If you ever need to replace the existing context, `replaceContext` will do so:  
 *Note: you should not use this after components have mounted*
 ```js
-component.context = { DOM, LOG, ETC }
-component.replaceContext({ FOO, BAR })
+connect.context = { DOM, LOG, ETC }
+connect.replaceContext({ FOO, BAR })
 
-component.context.hasOwnProperty('DOM') //=>false
-component.context.hasOwnProperty('LOG') //=>false
-component.context.hasOwnProperty('ETC') //=>false
-component.context.hasOwnProperty('FOO') //=>true
-component.context.hasOwnProperty('BAR') //=>true
+connect.context.hasOwnProperty('DOM') //=>false
+connect.context.hasOwnProperty('LOG') //=>false
+connect.context.hasOwnProperty('ETC') //=>false
+connect.context.hasOwnProperty('FOO') //=>true
+connect.context.hasOwnProperty('BAR') //=>true
 ```
 ---
 #### withContext
-This creates a clone of `component` with its own context.  
+This creates a clone of `connect` with its own context.  
 This allows different parts of your apps to have different shared state.
 ```js
-component.context = { FOO }
-component2 = component.withContext({ BAR })
+connect.context = { FOO }
+connect2 = connect.withContext({ BAR })
 
-component.context.hasOwnProperty('FOO') //=>true
-component.context.hasOwnProperty('BAR') //=>false
+connect.context.hasOwnProperty('FOO') //=>true
+connect.context.hasOwnProperty('BAR') //=>false
 
-component2.context.hasOwnProperty('FOO') //=>false
-component2.context.hasOwnProperty('BAR') //=>true
+connect2.context.hasOwnProperty('FOO') //=>false
+connect2.context.hasOwnProperty('BAR') //=>true
 ```
   
 ### instance methods
-Mithril components created with the `component` function consist of the two mithril utilized functions, `oninit` and `view`.  
-In addition, they have `getContext` which returns a shallow clone of the shared `context` and optionally accepts `vnode`-- when present, a reference to vnode will be added to the `context` clone.  
-  
-You can add lifecycle hooks to the resulting components, and use `getContext` to get the same object which is fed by default to function-components:  
-*Note: in general, `this` usage should be frowned upon.*
-```js
-const Example = component( ... )
-Example.onupdate = function (vnode) {
-  const { DOM } = this.getContext() // optionally pass in vnode to get { ...context, vnode }
-  ...
-}
-```
-  
-  
-## selectState
-`selectState` is a function which returns a selector for your component which selects from a redux store.  
-See the Redux example  
-  
-## bindActions
-`bindActions` is a function which returns a selector function which binds `actionCreators` to your components.  
-Resulting `actions` are thunks, so they could be considered `actionCreatorCreators`  
-See the Redux example  
+`connect` adds the following methods to your component: `oninit`, `onbeforeupdate`, `onbeforeremove`, and `onremove` (wrapping existing ones if necessary)  
+These ensure that their `vnode.state` is updated with context when appropriate.  
   
   
 ## examples
