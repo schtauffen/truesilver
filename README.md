@@ -97,7 +97,7 @@ connect.context = createStore(combineReducers(reducers), applyMiddleware(middlew
 ```
 ```js
 // counter-component
-import m from 'mithril
+import m from 'mithril'
 import { connect } from 'truesilver'
 import { increment, decrement } from 'actions'
 
@@ -127,7 +127,8 @@ export default connect(component( ... ))
 ```
   
   
-#### context
+---
+#### #context
 Has a custom setter which `Object.assign`'s anything you assign to it:
 ```js
 connect.context = { DOM }
@@ -139,7 +140,7 @@ connect.context.hasOwnProperty('LOG') //=>true
 connect.context.hasOwnProperty('ETC') //=>true
 ```
 ---
-#### replaceContext
+#### #replaceContext
 If you ever need to replace the existing context, `replaceContext` will do so:  
 *Note: you should not use this after components have mounted*
 ```js
@@ -153,7 +154,7 @@ connect.context.hasOwnProperty('FOO') //=>true
 connect.context.hasOwnProperty('BAR') //=>true
 ```
 ---
-#### withContext
+#### #withContext
 This creates a clone of `connect` with its own context.  
 This allows different parts of your apps to have different shared state.
 ```js
