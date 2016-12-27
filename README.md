@@ -167,7 +167,7 @@ connect.context.hasOwnProperty('BAR') //=>false
 connect2.context.hasOwnProperty('FOO') //=>false
 connect2.context.hasOwnProperty('BAR') //=>true
 ```
-  
+---
 ### instance methods
 `connect` adds the following methods to your component: `oninit`, `onbeforeupdate`, `onbeforeremove`, and `onremove` (wrapping existing ones if necessary)  
 These ensure that their `vnode.state` is updated with context when appropriate.  
