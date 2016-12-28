@@ -11,7 +11,8 @@
   }
 
   function Connector (context ) {
-    context = typeof contextr === 'undefined' ? {} : context
+    var refs = []
+    context = typeof context === 'undefined' ? {} : context
 
     connect.replaceContext = function (pContext) {
       context = pContext
@@ -32,10 +33,30 @@
 
     function connect (mapStateToProps, mapDispatchToProps, mergeProps) {
       if (typeof mapStateToProps === 'object' && mapStateToProps.hasOwnProperty('view')) {
-        addConnectedProps = function (props) {
-          return Object.assign(props, context)
-        }
+        refs = [context]
         return connectedComponent(mapStateToProps)
+      }
+
+      if (typeof mapStateToProps === 'function') {
+        refs.push(function () {
+          return mapStateToProps(context.getState())
+        })
+      } else if (typeof mapStateToProps != null) {
+        refs.push(function () {
+          return context.getState()
+        })
+      }
+
+      if (typeof mapDispatchToProps === 'object') {
+        refs.push(Object.keys(mapDispatchToProps).reduce(function (out, key) {
+          out[key] = function (val) {
+            return function () {
+              return context.dispatch(mapDispatchToProps[key](val))
+            }
+          }
+        }, {}))
+      } else if (typeof mapDispatchToProps === 'function') {
+        refs.push(mapDispatchToProps(context.dispatch))
       }
 
       return connectedComponent
@@ -76,36 +97,13 @@
         })
       }
 
-      // TODO - optimize this (only do typechecking once, etc)
       function addConnectedProps (props) {
-        // should context, mergProps, etc clobber props? seems backwards
-        return Object.assign(props, context,  updateStateProps(), updateDispatchProps(), mergeProps || {})
-      }
+        var toAdd = refs.map(function (f) {
+          if (typeof f === 'function') return f()
+          return f
+        })
 
-      function updateStateProps () {
-        /* jshint eqnull: true */
-        if (mapStateToProps == null) return {}
-
-        if (typeof mapStateToProps !== 'function')
-          throw new TypeError('connect param1 (mapStateToProps) expects a Function')
-
-        return mapStateToProps(context.getState())
-      }
-
-      function updateDispatchProps () {
-        /* jshint eqnull: true */
-        if (mapDispatchToProps == null) return {}
-
-        if (typeof mapDispatchToProps === 'object')
-          return Object.keys(mapDispatchToProps).reduce(function (out, key) {
-            out[key] = val => () => context.dispatch(mapDispatchToProps[key](val))
-            return out
-          }, {})
-
-        if (typeof mapDispatchToProps !== 'function')
-          throw new TypeError('connect param2 (mapDispatchToProps) expects an Object or a Function')
-
-        return mapDispatchToProps(context.dispatch)
+        return Object.assign.apply(null, props.concat(toAdd))
       }
     }
   }
