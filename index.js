@@ -103,7 +103,7 @@
           return f
         })
 
-        return Object.assign.apply(null, props.concat(toAdd))
+        return Object.assign.apply(null, [props].concat(toAdd))
       }
     }
   }
