@@ -1,0 +1,40 @@
+:root body {
+  background-color: #f0f0f0;
+}
+:root * {
+  box-sizing: border-box;
+}
+.main__navlist__3Z5i1 {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 10px;
+}
+.main__navitem__3Cxe0 {
+  display: inline-block;
+  border: solid 1px #ddd;
+  border-right-width: 0;
+}
+.main__navitem__3Cxe0:last-child {
+  border-right-width: 1px;
+}
+.main__navlink__3-nf9,
+.main__navlink_active__1CAoz {
+  text-decoration: none;
+  display: inline-block;
+  padding: 4px 8px;
+}
+.main__navlink__3-nf9 {
+  background-color: #e4e4e4;
+  color: #777;
+}
+.main__navlink__3-nf9:hover {
+  background-color: #fff;
+  color: #000;
+}
+.main__navlink_active__1CAoz {
+  background-color: #f6f6f6;
+  color: #000;
+  cursor: default;
+}
+
+/*# sourceMappingURL=main.css.map*/

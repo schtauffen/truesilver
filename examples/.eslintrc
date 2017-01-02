@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    "react"
+  ],
+  "extends": [
+    "standard",
+    "plugin:react/recommended"
+  ],
+  "rules": {
+    "comma-dangle": ["error", "always-multiline"],
+    "arrow-parens": ["error", "as-needed"]
+  }
+}

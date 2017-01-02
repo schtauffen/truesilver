@@ -1,0 +1,35 @@
+:root
+  body
+    background-color #f0f0f0
+  *
+    box-sizing border-box
+
+.navlist
+  margin 0
+  padding 0
+  padding-bottom 10px
+
+.navitem
+  display inline-block
+  border solid 1px #ddd
+  border-right-width 0
+  &:last-child
+    border-right-width 1px
+
+.navlink,
+.navlink_active
+  text-decoration none
+  display inline-block
+  padding 4px 8px
+
+.navlink
+  background-color #e4e4e4
+  color #777
+  &:hover
+    background-color #fff
+    color #000
+
+  &_active
+    background-color #f6f6f6
+    color #000
+    cursor default
