@@ -1,18 +1,9 @@
 These examples are not included in the npm package. You must clone this truesilver repo:
 
 ```bash
-git clone https://github.com/schtauffen/truesilver
-```
-
-To view examples:
-
-```bash
+git clone https://github.com/schtauffen/truesilver.git
 cd truesilver/examples
 npm install
-```
-
-After installation completes:
-```bash
 npm run watch
 ```
 
