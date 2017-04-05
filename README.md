@@ -187,12 +187,12 @@ const decrement = addToStream(-1)
 
 const Counter = ({ number$ }) =>
   m('div', [
-    m('button', { onclick: increment(number$) }, '-'),
+    m('button', { onclick: decrement(number$) }, '-'),
     m('span', number$()),
     m('button', { onclick: increment(number$) }, '+')
   ])
 
-export default Counter
+export default pure(Counter)
 ```
 
 
