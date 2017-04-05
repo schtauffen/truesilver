@@ -2,6 +2,7 @@
   var truesilver = {
     component: component,
     connect: Connector(),
+    pure: pure
   }
 
   if (typeof module !== 'undefined' && module.exports) {
@@ -115,6 +116,14 @@
       },
       view: function (vnode) {
         return this.view(vnode)
+      }
+    }
+  }
+
+  function pure (view) {
+    return {
+      view: function (vnode) {
+        return view(Object.assign({}, vnode.attrs, { children: vnode.children }))
       }
     }
   }

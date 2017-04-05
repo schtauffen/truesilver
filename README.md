@@ -1,8 +1,9 @@
 # truesilver
-*truesilver* is a utility library for [mithril#rewrite](https://github.com/lhorie/mithril.js/tree/rewrite).  
+*truesilver* is a utility library for [mithril](https://github.com/lhorie/mithril.js).  
 It currently consists of the following utilities:  
 * [component](#component)  
 * [connect](#connect)  
+* [pure](#pure)  
   
 To Install:
 ```bash
@@ -173,6 +174,28 @@ connect2.context.hasOwnProperty('BAR') //=>true
 These ensure that their `vnode.state` is updated with context when appropriate.  
   
   
+## pure
+`pure` wraps a function to allow functional components, a la React:
+```js
+// counter.js
+import m from 'mithril'
+import { pure } from 'truesilver'
+
+const addToStream = n => stream => () => stream(stream() + n)
+const increment = addToStream(1)
+const decrement = addToStream(-1)
+
+const Counter = ({ number$ }) =>
+  m(div', [
+    m('button', { onclick: increment(number$) }, '-'),
+    m('span', number$()),
+    m('button', { onclick: increment(number$) }, '+')
+  ])
+
+export default Counter
+```
+
+
 ## examples
 * TODO - simple light box  
 * TODO - hooking up to redux  
