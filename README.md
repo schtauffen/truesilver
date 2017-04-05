@@ -186,7 +186,7 @@ const increment = addToStream(1)
 const decrement = addToStream(-1)
 
 const Counter = ({ number$ }) =>
-  m(div', [
+  m('div', [
     m('button', { onclick: increment(number$) }, '-'),
     m('span', number$()),
     m('button', { onclick: increment(number$) }, '+')
