@@ -60,7 +60,7 @@ import stream from 'mithril/stream'
 import { connect } from 'truesilver'
 
 export default connect({
-  oninit () {
+  oninit (vnode) {
     this.open = true
     this.close = () => (this.open = false)
 
@@ -68,7 +68,7 @@ export default connect({
     // to be cleaned up. 'connect' automatically will clean up streams added to
     // 'vnode.state.streams' (which mithril binds to 'this' by default)
     this.streams = [
-      this.DOM.clicks.map(close)
+      vnode.attrs.DOM.clicks.map(close)
     ]
 
     // doesn't need to be in .streams since it will already
@@ -122,9 +122,11 @@ export default Counter
 ```
   
   
-connect and component can, of course, be composed:  
+connect functions with both component and pure, of course:  
 ```js
 export default connect(component( ... ))
+//or
+export default connect(pure( ... ))
 ```
   
   
@@ -171,7 +173,7 @@ connect2.context.hasOwnProperty('BAR') //=>true
 ---
 ### instance methods
 `connect` adds the following methods to your component: `oninit`, `onbeforeupdate`, `onbeforeremove`, and `onremove` (wrapping existing ones if necessary)  
-These ensure that their `vnode.state` is updated with context when appropriate.  
+These ensure that their `vnode.attrs` is updated with your context's values.  
   
   
 ## pure

@@ -67,14 +67,14 @@
         return Object.assign({}, component, {
           oninit (vnode) {
             this.streams = []
-            addConnectedProps(vnode.state)
+            addConnectedProps(vnode.attrs)
 
             if (component.oninit) {
               component.oninit.call(vnode.state, vnode)
             }
           },
           onbeforeupdate (vnode, old) {
-            addConnectedProps(vnode.state)
+            addConnectedProps(vnode.attrs)
 
             if (component.onbeforeupdate)
               return component.onbeforeupdate.call(vnode.state, vnode, old)
@@ -82,7 +82,7 @@
             return true
           },
           onbeforeremove (vnode) {
-            addConnectedProps(vnode.state)
+            addConnectedProps(vnode.attrs)
 
             if (component.onbeforeremove)
               return component.onbeforeremove.call(vnode.state, vnode)
