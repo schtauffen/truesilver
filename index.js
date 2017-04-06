@@ -55,6 +55,7 @@
               return context.dispatch(mapDispatchToProps[key](val))
             }
           }
+          return out
         }, {}))
       } else if (typeof mapDispatchToProps === 'function') {
         refs.push(mapDispatchToProps(context.dispatch))
